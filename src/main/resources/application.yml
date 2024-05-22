@@ -1,0 +1,13 @@
+spring:
+  security:
+    user:
+      password: root
+
+logging:
+  level:
+    org:
+      springframework:
+        jdbc:
+          core:
+            JdbcTemplate: INFO
+    root: INFO
