@@ -1,11 +1,13 @@
 package com.sidh.hotelbooking.service.customer;
 
 import com.sidh.hotelbooking.dto.customer.*;
+import com.sidh.hotelbooking.exception.InvalidRequestException;
 import com.sidh.hotelbooking.model.customer.Customer;
 import com.sidh.hotelbooking.repository.customer.CustomerRepository;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -31,22 +33,30 @@ public class CustomerServiceImpl implements CustomerService {
     private Boolean tokenDisabled;
 
     @Override
-    public MessageDto register(CustomerRegisterDto customerRegisterDto) {
-        if (customerRegisterDto != null && !ObjectUtils.isEmpty(customerRegisterDto)) {
-            String encodedPassword = passwordEncoder.encode(customerRegisterDto.getPassword());
+    public MessageDto register(CustomerRegisterDto register) {
+        if (register.getPhone().length() != 10 || !register.getPhone().matches("^\\d{10}$")) {
+            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, mapToMessageDto(HttpStatus.BAD_REQUEST.toString(),
+                    "Invalid phone number."));
+        }
+        if (register != null && !ObjectUtils.isEmpty(register)) {
+            String encodedPassword = passwordEncoder.encode(register.getPassword());
             Customer customer = Customer.builder()
-                    .firstName(customerRegisterDto.getFirstName())
-                    .lastName(customerRegisterDto.getLastName())
-                    .email(customerRegisterDto.getEmail())
+                    .firstName(register.getFirstName())
+                    .lastName(register.getLastName())
+                    .email(register.getEmail())
                     .password(encodedPassword)
-                    .phone(customerRegisterDto.getPhone())
+                    .phone(register.getPhone())
                     .role(USER)
                     .build();
             try {
                 customerRepository.create(customer);
             } catch (RuntimeException ex) {
-                throw ex;
+                throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, mapToMessageDto(HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+                        "Email or Phone already exists. Please try with another."));
             }
+        } else {
+            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, mapToMessageDto(HttpStatus.BAD_REQUEST.toString(),
+                    "Invalid request. Please provide mandatory fields."));
         }
         return MessageDto.builder()
                 .message("Customer Registered successfully")
@@ -56,12 +66,13 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public LoginResponseDto login(LoginRequestDto request) {
         Customer customer = null;
-        if (StringUtils.hasText(request.getEmail())) {
+        if (StringUtils.hasText(request.getEmail()) && StringUtils.hasText(request.getPassword())) {
             customer = customerRepository.findUserByEmail(request.getEmail());
         }
         if (customer == null || ObjectUtils.isEmpty(customer) ||
                 !passwordEncoder.matches(request.getPassword(), customer.getPassword())) {
-            throw new RuntimeException("Login failed");
+            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, mapToMessageDto(HttpStatus.BAD_REQUEST.toString(),
+                    "Invalid email or password."));
         }
         CustomerDto customerDto = CustomerDto.builder()
                 .customerId(customer.getCustomerId())
@@ -79,6 +90,13 @@ public class CustomerServiceImpl implements CustomerService {
                 .message("Customer Login successful")
                 .token(token)
                 .customers(List.of(customerDto))
+                .build();
+    }
+
+    private static MessageDto mapToMessageDto(String status, String message) {
+        return MessageDto.builder()
+                .status(status)
+                .message(message)
                 .build();
     }
 }
