@@ -98,7 +98,8 @@ CREATE TABLE htl_bkg.t_rm (
 	a_rm_cls_id VARCHAR(37) NOT NULL,
 	a_st VARCHAR(15) NOT NULL,
 	a_rm_no VARCHAR(10) NOT NULL,
-	CONSTRAINT PKRm PRIMARY KEY (a_rm_id)
+	CONSTRAINT PKRm PRIMARY KEY (a_rm_id),
+	CONSTRAINT UkRm UNIQUE (a_rm_no, a_flr_no)
 );
 
 CREATE TABLE htl_bkg.t_bkg_rm (

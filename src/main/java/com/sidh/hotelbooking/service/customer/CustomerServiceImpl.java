@@ -4,6 +4,7 @@ import com.sidh.hotelbooking.dto.customer.*;
 import com.sidh.hotelbooking.exception.InvalidRequestException;
 import com.sidh.hotelbooking.model.customer.Customer;
 import com.sidh.hotelbooking.repository.customer.CustomerRepository;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 
 import static com.sidh.hotelbooking.util.CustomerCmnConstants.USER;
+import static com.sidh.hotelbooking.util.MapExceptionUtil.mapToMessageDto;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -33,6 +35,7 @@ public class CustomerServiceImpl implements CustomerService {
     private Boolean tokenDisabled;
 
     @Override
+    @Transactional
     public MessageDto register(CustomerRegisterDto register) {
         if (register.getPhone().length() != 10 || !register.getPhone().matches("^\\d{10}$")) {
             throw new InvalidRequestException(HttpStatus.BAD_REQUEST, mapToMessageDto(HttpStatus.BAD_REQUEST.toString(),
@@ -90,13 +93,6 @@ public class CustomerServiceImpl implements CustomerService {
                 .message("Customer Login successful")
                 .token(token)
                 .customers(List.of(customerDto))
-                .build();
-    }
-
-    private static MessageDto mapToMessageDto(String status, String message) {
-        return MessageDto.builder()
-                .status(status)
-                .message(message)
                 .build();
     }
 }

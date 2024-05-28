@@ -34,7 +34,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         if (!ObjectUtils.isEmpty(customer)) {
             inscnt = jdbcTemplate.update(INSERT_CUSTOMER, getSqlParamSource(customer));
         }
-        logger.info("insert to t_cust completed with {} count", inscnt);
+        logger.info("Insert to t_cust completed with {} count", inscnt);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         MapSqlParameterSource map = new MapSqlParameterSource();
         map.addValue(EMAIL, email);
         List<Customer> customers = jdbcTemplate.query(FIND_BY_EMAIL, map, new CustomerRowMapper());
-        logger.info("customer fetch completed with {} count", customers.size());
+        logger.info("Customer fetch completed with {} count", customers.size());
         return !CollectionUtils.isEmpty(customers) ? customers.stream().findFirst().get() : null;
     }
 
