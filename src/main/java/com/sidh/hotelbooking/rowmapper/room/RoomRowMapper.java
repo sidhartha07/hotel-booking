@@ -1,4 +1,4 @@
-package com.sidh.hotelbooking.mapper.room;
+package com.sidh.hotelbooking.rowmapper.room;
 
 import com.sidh.hotelbooking.model.room.Room;
 import org.springframework.jdbc.core.RowMapper;

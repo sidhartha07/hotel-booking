@@ -1,4 +1,4 @@
-package com.sidh.hotelbooking.model.room.feature;
+package com.sidh.hotelbooking.model.room;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Data
 @Builder
-public class Feature implements Serializable {
-    private String featureId;
-    private String featureName;
+public class BedTypeDetails implements Serializable {
+    private String bedTypeName;
+    private Integer noOfBeds;
 }

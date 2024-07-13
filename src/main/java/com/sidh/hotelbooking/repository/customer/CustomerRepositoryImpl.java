@@ -1,6 +1,6 @@
 package com.sidh.hotelbooking.repository.customer;
 
-import com.sidh.hotelbooking.mapper.customer.CustomerRowMapper;
+import com.sidh.hotelbooking.rowmapper.customer.CustomerRowMapper;
 import com.sidh.hotelbooking.model.customer.Customer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
