@@ -61,7 +61,8 @@ CREATE TABLE htl_bkg.t_bkg_addon (
 CREATE TABLE htl_bkg.t_bd_typ (
 	a_bd_typ_id VARCHAR(37) NOT NULL,
 	a_bd_typ_nm VARCHAR(50) NOT NULL,
-	CONSTRAINT PKBdTyp PRIMARY KEY (a_bd_typ_id)
+	CONSTRAINT PKBdTyp PRIMARY KEY (a_bd_typ_id),
+	CONSTRAINT UkBdTyp UNIQUE (a_bd_typ_nm)
 );
 
 CREATE TABLE htl_bkg.t_rm_cls (
@@ -76,20 +77,19 @@ CREATE TABLE htl_bkg.t_rm_cls_bd_typ (
 	a_rm_cls_id VARCHAR(37) NOT NULL,
 	a_bd_typ_id VARCHAR(37) NOT NULL,
 	a_no_beds NUMERIC(20,0) NOT NULL,
-	CONSTRAINT PKRmClsBdTyp PRIMARY KEY (a_rm_typ_id),
-	CONSTRAINT UKRmClsBdTyp UNIQUE (a_rm_cls_id, a_bd_typ_id)
+	CONSTRAINT PKRmClsBdTyp PRIMARY KEY (a_rm_typ_id)
 );
 
 CREATE TABLE htl_bkg.t_ftre (
 	a_ftre_id VARCHAR(37) NOT NULL,
 	a_ftre_nm VARCHAR(100) NOT NULL,
-	CONSTRAINT PKFtre PRIMARY KEY (a_ftre_id)
+	CONSTRAINT PKFtre PRIMARY KEY (a_ftre_id),
+	CONSTRAINT UkFtre UNIQUE (a_ftre_nm)
 );
 
 CREATE TABLE htl_bkg.t_rm_cls_ftre (
 	a_rm_cls_id VARCHAR(37) NOT NULL,
-	a_ftre_id VARCHAR(37) NOT NULL,
-	CONSTRAINT PKRmClsFtre PRIMARY KEY (a_rm_cls_id, a_ftre_id)
+	a_ftre_id VARCHAR(37) NOT NULL
 );
 
 CREATE TABLE htl_bkg.t_rm (
@@ -98,7 +98,8 @@ CREATE TABLE htl_bkg.t_rm (
 	a_rm_cls_id VARCHAR(37) NOT NULL,
 	a_st VARCHAR(15) NOT NULL,
 	a_rm_no VARCHAR(10) NOT NULL,
-	CONSTRAINT PKRm PRIMARY KEY (a_rm_id)
+	CONSTRAINT PKRm PRIMARY KEY (a_rm_id),
+	CONSTRAINT UkRm UNIQUE (a_rm_no, a_flr_no)
 );
 
 CREATE TABLE htl_bkg.t_bkg_rm (

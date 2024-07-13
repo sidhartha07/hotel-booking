@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -15,9 +16,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
+
     public String extractUsername(String token, String secretKey) {
         return extractClaim(token, secretKey, Claims::getSubject);
     }
@@ -38,6 +41,9 @@ public class JwtService {
 
     private String generateToken(String secretKey, HashMap<String, Object> extraClaims, UserDetails userDetails,
                                  long jwtExpiration) {
+        extraClaims.put("role", userDetails.getAuthorities().stream()
+                .map(grantedAuthority -> "ROLE_" + grantedAuthority.getAuthority())
+                .collect(Collectors.joining(",")));
         return buildToken(secretKey, extraClaims, userDetails, jwtExpiration);
     }
 
@@ -52,11 +58,11 @@ public class JwtService {
     }
 
     public String buildToken(String secretKey, Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
-        return Jwts.builder()
+        return Jwts.builder().claims().add(extraClaims).and()
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSignInKey(secretKey), SignatureAlgorithm.HS256)
+                .signWith(getKey(secretKey))
                 .compact();
     }
 
@@ -84,20 +90,25 @@ public class JwtService {
         return extractClaim(token, secretKey, Claims::getExpiration);
     }
 
-    private Claims extractAllClaims(String token, String secretKey) {
+    public Claims extractAllClaims(String token, String secretKey) {
         return Jwts.parser()
-                .setSigningKey(getSignInKey(secretKey))
+                .verifyWith(getKey(secretKey))
                 .build()
-                .parseClaimsJwt(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     private Claims extractAllClaims(String token, String secretKey, SignatureAlgorithm signatureAlgorithm) {
         return Jwts.parser()
-                .setSigningKey(getSignInKey(secretKey, signatureAlgorithm))
+                .verifyWith(getKey(secretKey))
                 .build()
-                .parseClaimsJwt(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    private SecretKey getKey(String secretKey) {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     private Key getSignInKey(String secretKey) {

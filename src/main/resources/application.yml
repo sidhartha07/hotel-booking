@@ -21,4 +21,4 @@ application:
 
 # Configuring for enabling and disabling jwt token flow.
 token:
-  disabled: false
+  disabled: true

@@ -1,4 +1,4 @@
-package com.sidh.hotelbooking.mapper.customer;
+package com.sidh.hotelbooking.rowmapper.customer;
 
 import com.sidh.hotelbooking.model.customer.Customer;
 import org.springframework.jdbc.core.RowMapper;
